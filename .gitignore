@@ -1,0 +1,8 @@
+/gitignore
+/.ipynb_checkpoints
+/tmp
+.DS_Storeø
+*.pik
+*.png
+*.pyc
+HYNS_Analytics_tests_less_data.ipynb
