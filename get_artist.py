@@ -2,7 +2,9 @@ import os
 import pymysql as mdb
 import sqlalchemy as sa
 import pandas as pd
-import pickle
+import cPickle
+import json
+import re
 from pyechonest import artist as a
 from pyechonest import util
 from numpy import zeros
@@ -14,80 +16,30 @@ event.  Then, using either MusicBrainz id (artist_mbid) or name, it will query
 EchoNest to get a set of terms for the artists.  These terms will then be
 stored as a sparse vector for each artist and the artists will be compared
 against each other using cosine similarity
-"""
+"""    
 
-db_connect_string = os.environ.get('DB_CREDENTIALS')
+def scrub(s):
+    return re.sub('"', '', s)
 
-engine = sa.create_engine(db_connect_string)
-#artist_info = {}
-
-en = pyapi.Pyapi('echonest')
-
-#def artists_df_lookup(date_start, date_stop, venue_region='CA'):
-def artists_df_lookup(date_start, date_stop, venue_city='San Francisco'):
-    """
-    Args
-        date_start: str of format YYYY-MM-DD HH:MM:SS
-        date_end: str of format YYYY-MM-DD HH:MM:SS
-        venue_region: str, currently either 'CA', 'WA' or 'NY'
-        venue_city: str, 'San Francisco'
-    """
-    sql = ("SELECT artist_name, artist_mbid, event_datetime FROM Events "
-        "WHERE event_datetime BETWEEN '{0}' AND '{1}' "
-        "AND venue_city = '{2}' "
-        #"ORDER BY event_datetime DESC, artist_mbid ASC;"
-        .format(date_start, date_stop, venue_city))
-
-    print sql
-    # pd sql query requires a sqlalchemy engine
-    return pd.read_sql_query(sql, engine)
-
-def get_artist_info_pyechonest(df_artist):
-    """Takes an Artist pyechonest object
-    Arg: df_artist, a pandas dataframe
-
-    Note: this function has a tendency to exceed the API limit
-    """
-    i = 0
-    j = 0
-    k = 0
-    for index, row in df_artist.iterrows():
-        artist = None
-        try:
-            artist = a.Artist('musicbrainz:artist:{0}'
-                              .format(row['artist_mbid']))
-            i += 1
-            print '\n', 'mb =', i, '\n'
-        except util.EchoNestAPIError:
-            try:
-                artist = a.Artist(row['artist_name'])
-                j += 1
-                print '\n', 'name =', j, '\n'
-            except util.EchoNestAPIError:
-                k += 1
-                print '\n', 'unknown =', k, '\n'
-        if artist:
-            artist_info[artist.name] = {'familiarity': artist.familiarity,
-                                        'hotttnesss': artist.hotttnesss,
-                                        'terms': artist.terms}
-            print 'familiarity: ', artist.familiarity 
-    with open('artist_info.pik', 'w') as f:
-        pickle.dump(artist_info, f)
-    return artist_info
-
-def get_all_terms():
+def get_all_terms(en):
     """Gets all of the terms used by Echonest to describe an artist
     Returns:
         all_terms: dict with k = str term name and v = consecutive integer
     """
-    terms = en.get('artist/list_terms')
-    all_terms = {}
-    for i, term in enumerate(terms['terms']):
-        all_terms[term['name']] = i
+    try:
+        with open('all_terms.pik', 'r') as f:
+            all_terms = cPickle.load(f)
+    except IOError:
+        terms = en.get('artist/list_terms')
+        all_terms = {}
+        for i, term in enumerate(terms['terms']):
+            all_terms[term['name']] = i
+        with open('all_terms.pik', 'w') as f:
+            cPickle.dump(all_terms, f)
     return all_terms
 
-def get_artist_info_pyapi(artist_mbid=None, artist_name=None):
-    """Generates a single artist info dict
+def get_artist_info_pyapi(en, artist_mbid=None, artist_name=None):
+    """Generates a single artist info dict from Echonest
     Args:
         artist_mbid, str: MusicBrainz artist id
         artist_name, str: artist name
@@ -114,20 +66,19 @@ def get_artist_info_pyapi(artist_mbid=None, artist_name=None):
         try:
             artist = en.get('artist/profile', id='musicbrainz:artist:{0}'
                               .format(artist_mbid), bucket=bucket_list)
-            i = True
-            #print '\n', 'mb =', i, '\n'
+            success = True
+            return success, artist
         except PyapiException:
             pass
-    else:
-        # lookup artist on Echonest using the artist's name
-        try:
-            artist = en.get('artist/profile', name=artist_name,
-                            bucket=bucket_list)
-            j = True
-            #print '\n', 'name =', j, '\n'
-        except PyapiException:
-            k = True
-            #print '\n', 'unknown =', k, '\n'
+    # lookup artist on Echonest using the artist's name
+    try:
+        artist = en.get('artist/profile', name=artist_name,
+                        bucket=bucket_list)
+        j = True
+        #print '\n', 'name =', j, '\n'
+    except PyapiException:
+        k = True
+        #print '\n', 'unknown =', k, '\n'
     if artist:
         print artist
         #artist_info['name']
@@ -136,46 +87,69 @@ def get_artist_info_pyapi(artist_mbid=None, artist_name=None):
     else:
         return success, artist
 
-def generate_all_artist_info(df_artists, all_terms):
-    """generates and pickles a dict of all artists in 'df_artist' whose info
-    could be found on Echonest. Formats in the following manner:
+def pickle_it(data):
+    return cPickle.dumps(data, protocol = (cPickle.HIGHEST_PROTOCOL))
 
-
+def get_all_artist_en_info(all_terms, engine, en):
     """
-    all_artist_info = {}
+    """
+    sql = ("SELECT id, artist_bit_name, artist_bit_mbid FROM Artist "
+        "WHERE id > 10693") 
+        #2740, skip 5531,5532,5753, 7647, 7651 
+        #7737, 9854, 10693 (genre), 6189 (% in artist name)
+        #WHERE artist_en_id IS NULL")
+    # pd sql query requires a sqlalchemy engine
+    df_artists = pd.read_sql_query(sql, engine)
     for index, row in df_artists.iterrows():
-        #if index < 5:
-        result, artist_info =get_artist_info_pyapi(artist_mbid=row['artist_mbid'],
-                                         artist_name=row['artist_name'])
+        #if index < 6:    
+        result, artist_info =get_artist_info_pyapi(en,
+                                     artist_mbid=row['artist_bit_mbid'],
+                                     artist_name=row['artist_bit_name'])
         if result:    
-            term_wt_vec = zeros(len(all_terms))
-            term_fq_vec = zeros(len(all_terms))
-            d = {}
+            term_fq_vec = [0 for i in xrange(len(all_terms))]
+            term_wt_vec = [0 for i in xrange(len(all_terms))]
             info = artist_info['artist']
-            d['en_name'] = info['name']
-            d['en_id'] = info['id']
-            d['mbid'] = row['artist_mbid']
-            d['familiarity'] = info['familiarity']
-            d['hotttnesss'] = info['hotttnesss']
-            d['genre'] = info['genres']
+            d = {}
+            # some artist entries began with a \
+            if info['name'][0] == '\\':
+                d['artist_en_name'] = scrub(info['name'][1:])
+            else:
+                d['artist_en_name'] = scrub(info['name'])
+            d['artist_en_id'] = info['id']
+            d['en_familiarity'] = info['familiarity']
+            d['en_hotttnesss'] = info['hotttnesss']
+            if len(info['genres']) != 0:
+                d['en_genre'] = info['genres'] #change at id 5531
             for term in info['terms']:
-                vec_idx = all_terms[term['name']]
-                term_fq_vec[vec_idx] = term['frequency']
-                term_wt_vec[vec_idx] = term['weight']
-            d['term_fq'] = term_fq_vec
-            d['term_wt'] = term_wt_vec
-            d['songs'] = [song['title'] for song in info['songs']]
-            all_artist_info[row['artist_name']] = d
-    with open('all_artist_info2.pik', 'w') as f:
-        pickle.dump(all_artist_info, f)
-    return all_artist_info
+                # in case a term is not in the all_terms
+                try:
+                    idx = all_terms[term['name']]
+                    term_fq_vec[idx] = term['frequency']
+                    term_wt_vec[idx] = term['weight']
+                except IndexError:
+                    continue
+            d['en_term_fq'] = json.dumps(term_fq_vec)
+            d['en_term_wt'] = json.dumps(term_wt_vec)
+            #d['en_songs'] = [scrub(song['title']) for song in info['songs']]
+            print d['en_term_wt']
+            try:
+                col_val = ['{0} = "{1}"'.format(col, d[col]) for col in d]
+            except UnicodeEncodeError:
+                continue
+            update_sql = (("UPDATE Artist SET %s WHERE id = \"%s\"") % (
+                          ', '.join(col_val), row['id']))
+            #print update_sql
+            with engine.connect() as con:
+                    con.execute(update_sql)
+
 
 def main():
-    df_artists = artists_df_lookup('2015-09-25 01:00:00', '2015-09-27 01:00:00')
-    all_terms = get_all_terms()
-    all_info = generate_all_artist_info(df_artists, all_terms)
-    return all_info, all_terms
-    #artist_info = get_artist_info_pyapi(df_artist)
+    db_connect_string = os.environ.get('DB_CREDENTIALS')
+    engine = sa.create_engine(db_connect_string)
+    en = pyapi.Pyapi('echonest')
+    all_terms = get_all_terms(en)
+    get_all_artist_en_info(all_terms, engine, en)
 
 if __name__ == '__main__':
-    all_info, all_terms = main()
+    #all_info, all_terms = 
+    main()
