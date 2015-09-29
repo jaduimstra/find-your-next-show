@@ -1,8 +1,8 @@
+import os
 import pymysql as mdb
 import sqlalchemy as sa
 import pandas as pd
 import pickle
-
 from pyechonest import artist as a
 from pyechonest import util
 from numpy import zeros
@@ -16,11 +16,9 @@ stored as a sparse vector for each artist and the artists will be compared
 against each other using cosine similarity
 """
 
-username = 'root'
-pwd = ''
-dbname = 'hearshowdb2'
-engine = sa.create_engine('mysql+pymysql://{0}:{1}@localhost/{2}'.format(
-        username, pwd, dbname))
+db_connect_string = os.environ.get('DB_CREDENTIALS')
+
+engine = sa.create_engine(db_connect_string)
 #artist_info = {}
 
 en = pyapi.Pyapi('echonest')
@@ -43,10 +41,6 @@ def artists_df_lookup(date_start, date_stop, venue_city='San Francisco'):
     print sql
     # pd sql query requires a sqlalchemy engine
     return pd.read_sql_query(sql, engine)
-
-
-def make_artist_term_df():
-    pass
 
 def get_artist_info_pyechonest(df_artist):
     """Takes an Artist pyechonest object
@@ -109,7 +103,11 @@ def get_artist_info_pyapi(artist_mbid=None, artist_name=None):
     k = False
     artist = None
     success = False
-    bucket_list = ['terms','genre', 'familiarity', 'hotttnesss']
+    bucket_list = ['terms',
+                   'genre',
+                   'familiarity',
+                   'hotttnesss',
+                   'songs']
     if artist_mbid != None:
         # use a try block here in case the mbid is not accessible
         # through Echonest
@@ -166,6 +164,7 @@ def generate_all_artist_info(df_artists, all_terms):
                 term_wt_vec[vec_idx] = term['weight']
             d['term_fq'] = term_fq_vec
             d['term_wt'] = term_wt_vec
+            d['songs'] = [song['title'] for song in info['songs']]
             all_artist_info[row['artist_name']] = d
     with open('all_artist_info2.pik', 'w') as f:
         pickle.dump(all_artist_info, f)

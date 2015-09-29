@@ -1,56 +1,31 @@
+import pickle
 import pymysql as mdb
 import pyapi
 import re
 
 bit = pyapi.Pyapi('bandsintown')
 
-con = mdb.connect('localhost', 'root', '', 'hearshowdb2') # host, user, pwd, db
-
-def drop_table(table):
-    with con:
-        cur = con.cursor()
-        cur.execute("DROP TABLE IF EXISTS {0}".format(table))
-
-def create_events_table():
-    with con:
-        cur = con.cursor()
-        sql = ("CREATE TABLE IF NOT EXISTS Events "
-               "(id INT PRIMARY KEY AUTO_INCREMENT," 
-                          "artist_mbid TEXT,"
-                          "artist_name TEXT,"
-                          "artist_bit_url TEXT,"
-                          "event_bit_id INT,"
-                          "event_datetime DATETIME,"
-                          "event_sale_datetime DATETIME,"
-                          "tix_status TEXT,"
-                          "tix_url TEXT,"
-                          "event_url TEXT,"
-                          "venue_bit_id INT,"
-                          "venue_city TEXT,"
-                          "venue_country TEXT,"
-                          "venue_lat FLOAT,"
-                          "venue_long FLOAT,"
-                          "venue_name TEXT,"
-                          "venue_region TEXT,"
-                          "venue_url TEXT)"
-                          )
-        #print sql
-        cur.execute(sql)
+with open('con_cred.pik', 'r') as f:
+    cred = pickle.load(f)
+con = mdb.connect(cred[0], cred[1], cred[2], cred[3])
 
 def scrub(s):
     return re.sub('"', '', s)
 
-def check_entry(event_id):
+def check_entry(sql):
     with con:
         cur = con.cursor()
-        cur.execute("SELECT id FROM Events WHERE event_bit_id = {0}".format(event_id))
+        cur.execute(sql)
         rows = cur.fetchall()
         if len(rows) == 0:
-            return False
-        if len(rows) == 1:
-            return True
+            return 0
+        else:
+            for row in rows:
+                return row[0]
 
-def insert_row(rowdict):
+def gen_key_value(rowdict):
+    # Generate column and values strings for SQL inserts
+    # from a dict of k=column, v=value
     keys = []
     results = []
     for key in rowdict:
@@ -59,21 +34,48 @@ def insert_row(rowdict):
         else:
             keys.append(key)
             results.append(rowdict[key])
-    print keys
-    print results
+    return ', '.join(keys), '", "'.join(results)
+
+def insert_event(a_dict, e_dict, v_dict):
+    # Insert the artist and venue info and 
+    fk_id = {}
+    for d in [(a_dict, 'Artist', 'artist_bit_name'),
+              (v_dict, 'Venue', 'venue_bit_id')]:
+        try:
+            row_id = check_entry("SELECT id FROM {0} WHERE {1} = \"{2}\""
+                    .format(d[1], d[2], d[0][d[2]]))
+        except UnicodeEncodeError:
+            break
+        if row_id == 0:
+            columns, values = gen_key_value(d[0])
+            try:
+                sql = ("""INSERT INTO {0} ({1}) VALUES (\"{2}\")"""
+                       .format(d[1], columns, values))
+                print
+                print sql
+            except UnicodeEncodeError:
+                break
+            with con:
+                cur = con.cursor()
+                cur.execute(sql)
+                cur.execute('SELECT LAST_INSERT_ID()')
+                rows = cur.fetchall()
+                for row in rows:
+                    fk_id[d[1]] = row[0]
+        else:
+            fk_id[d[1]] = row_id
+    #Now insert the Event using the fk_ids from the Artist and Venue tables
+    e_col, e_val = gen_key_value(e_dict)
+    for fk in fk_id:
+        e_col = e_col + ', {0}_fk'.format(fk.lower())
+        e_val = e_val + '", \"{0}'.format(fk_id[fk])
     try:
-        sql = """INSERT INTO Events ({0}) VALUES (\"{1}\")""".format(', '.join(keys), '", "'.join(results))
+        sql = ("""INSERT INTO Event ({0}) VALUES (\"{1}\")"""
+               .format(e_col, e_val))
         print
         print sql
     except UnicodeEncodeError:
         return
-    #t1 = time.clock()
-    #c = apsw_conn.cursor()
-    #c.execute(sql)
-    #t2 = time.clock()
-    #print '\nTime to enter XY row: '+str(round(t2-t1, 6))+' seconds'
-    #self.pkeyid = 1000
-    #self.pkeyid = apsw_conn.last_insert_rowid()
     with con:
         cur = con.cursor()
         cur.execute(sql)
@@ -121,39 +123,41 @@ def db_write_all_pages(location='San Francisco,CA', date='all'):
     while True:
         bit_req = bit.get('events/search', location=location, per_page=100, date=date, page=page)
         print page, len(bit_req)
-        row_dict ={}
+        a_dict ={}
+        e_dict ={}
+        v_dict ={}
         for event in bit_req:
-            if not check_entry(event['id']):
-                row_dict['event_bit_id'] = str(event['id'])
-                row_dict['event_datetime'] = event['datetime']
-                row_dict['event_sale_datetime'] = event['on_sale_datetime']
-                row_dict['tix_status'] = event['ticket_status']
-                row_dict['tix_url'] = event['ticket_url']
-                row_dict['event_url'] = event['url']
-                row_dict['venue_bit_id'] = str(event['venue']['id'])
-                row_dict['venue_city'] = event['venue']['city']
-                row_dict['venue_country'] = event['venue']['country']
-                row_dict['venue_lat'] = str(event['venue']['latitude'])
-                row_dict['venue_long'] = str(event['venue']['longitude'])
-                row_dict['venue_name'] = scrub(event['venue']['name'])
-                row_dict['venue_region'] = event['venue']['region']
-                row_dict['venue_url'] = event['venue']['url']
+            #if not check_entry(event['id']):
+                e_dict['event_bit_id'] = str(event['id'])
+                e_dict['event_datetime'] = event['datetime']
+                e_dict['event_sale_datetime'] = event['on_sale_datetime']
+                e_dict['tix_status'] = event['ticket_status']
+                e_dict['tix_url'] = event['ticket_url']
+                e_dict['event_url'] = event['url']
+                v_dict['venue_bit_id'] = str(event['venue']['id'])
+                v_dict['venue_city'] = event['venue']['city']
+                v_dict['venue_country'] = event['venue']['country']
+                v_dict['venue_lat'] = str(event['venue']['latitude'])
+                v_dict['venue_long'] = str(event['venue']['longitude'])
+                v_dict['venue_name'] = scrub(event['venue']['name'])
+                v_dict['venue_region'] = event['venue']['region']
+                v_dict['venue_url'] = event['venue']['url']
                 for artist in event['artists']:
-                    row_dict['artist_mbid'] = artist['mbid']
+                    a_dict['artist_bit_mbid'] = artist['mbid']
                     # for some reason, some of the artist names have a " in them!!
-                    row_dict['artist_name'] = scrub(artist['name'])
-                    row_dict['artist_bit_url'] = artist['url']
-                    print row_dict
+                    a_dict['artist_bit_name'] = scrub(artist['name'])
+                    a_dict['artist_bit_url'] = artist['url']
+                    print a_dict
                     print
-                    insert_row(row_dict)
+                    insert_event(a_dict, e_dict, v_dict)
         page += 1
         #if page > 1:
         if len(bit_req) < 100:
             break
 
 def main():
-    create_events_table()
-    db_write_all_pages(location= 'Seattle,WA', date = 'upcoming')
+    #create_events_table()
+    db_write_all_pages(location= 'San Francisco,CA', date = 'upcoming')
 
 
 if __name__ == '__main__':
