@@ -19,10 +19,10 @@ a:hover {
     text-decoration: underline;
 }
 
-a:visited {
+/*a:visited {
     color: blue;
 }
-
+/
 /* ....................................................................... */
 /* The top-right side panel and its title child */
 
@@ -258,7 +258,7 @@ div#movieInfo2 span.l {
 
 div#movieInfo {
     position: absolute;
-    top: 80px;
+    top: 90px;
     left: 10px;
     cursor: text;
     width: 200px;
@@ -268,7 +268,7 @@ div#movieInfo {
     border-radius: 8px;    
     font-family: Verdana, Arial, Helvetica, sans-serif;
     font-size: 12px;    
-    padding: 4px;
+    padding: 10px;
     text-align: left;
 }
 
@@ -357,6 +357,10 @@ div#catInfo div.f {
     border-top: 1px dotted #8E5981;
     margin-bottom: 20px;
     margin-top: 3px;
+}
+
+div#catInfo span.e {
+    font-size: 13px;
 }
 
 div#catInfo span.d {
