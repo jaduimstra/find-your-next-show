@@ -6,4 +6,5 @@
 *.png
 *.pyc
 *.sql
-HYNS_Analytics_tests_less_data.ipynb
+*.ipynb
+*.json
