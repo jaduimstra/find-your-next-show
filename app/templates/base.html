@@ -10,14 +10,14 @@
     <meta name="author" content="">
     <link rel="icon" href="../../favicon.ico">
 
-    <link rel="stylesheet" href="/static/css/hearyournextshow.css">
+    <link rel="stylesheet" href="/static/css/findyournextshow.css">
 
-    <title>hearyournextshow</title>
+    <title>findyournextshow</title>
 
     <!-- Bootstrap core CSS -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
    
-    <title>hearyournextshow.com</title>
+    <title>findyournextshow.com</title>
     <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
     <script src="../../assets/js/ie-emulation-modes-warning.js"></script>
@@ -40,20 +40,26 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Hear Your Next Show</a>
+          <a class="navbar-brand" href="#">Find Your Next Show</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li><a href="/index">Home</a></li>
             <li><a href="/static/slides.pdf">About</a></li>
-            <li><a href="https://github.com/jaduimstra/hear-your-next-show">GitHub</a></li>
+            <li><a href="https://github.com/jaduimstra/find-your-next-show">GitHub</a></li>
             <li><a>
+            </div>
+            <div>
             <form action="/output" method="GET">
               <div class="form-group">
                 <label for="Venue_city">City Name:</label>
-                <input type="text" id="Venue_city" name='Venue_city' placeholder="e.g. ">
+                <select name="Venue_city">
+                  <option value="CA">San Francisco, CA</option>
+                  <option value="NY">New York, NY</option>
+                  <option value="WA">Seattle, WA</option>
+                </select>
                <label for="Date">Date:</label>
-               <input type="text" id="Date" name='Date' placeholder="2015-10-02">
+               <input type="text" id="Date" name='Date' value="2015-10-02">
               <button type="submit" class="btn btn-default btn-md">Get Shows!</button>
               </div>
             </form>
