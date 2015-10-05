@@ -448,11 +448,6 @@ circle.cluster7 {
     fill-opacity: 0.8;
 }
 
-circle.l {
-    stroke: #ff5e00;
-    fill-opacity: 0.8;
-}
-
 circle.cluster8 {
     stroke: #00ffd9;
     fill-opacity: 0.8;
@@ -478,79 +473,6 @@ circle.none {
     stroke: black;
     fill-opacity: 0.8;
 }
-
-circle.gamingselected {
-    stroke: #ffbf00;
-    fill: #FFFFFF;
-    fill-opacity: 0.8;
-}
-
-circle.politicalselected {
-    stroke: #00ff55;
-    fill: #FFFFFF;
-    fill-opacity: 0.8;
-}
-
-circle.techselected {
-    stroke: #0a7cff;
-    fill: #FFFFFF;
-    fill-opacity: 0.8;
-}
-
-circle.redditselected {
-    stroke: #ff0000;
-    fill: #FFFFFF;
-    fill-opacity: 0.8;
-}
-
-circle.hobbiesselected {
-    stroke: #9900ff;
-    fill: #FFFFFF;
-    fill-opacity: 0.8;
-}
-
-circle.lifeselected {
-    stroke: #5500ff;
-    fill: #FFFFFF;
-    fill-opacity: 0.8;
-}
-
-circle.nsfwselected {
-    stroke: #ff00ae;
-    fill: #FFFFFF;
-    fill-opacity: 0.8;
-}
-
-circle.entertainmentselected {
-    stroke: #ff5e00;
-    fill: #FFFFFF;
-    fill-opacity: 0.8;
-}
-
-circle.scienceselected {
-    stroke: #00ffd9;
-    fill: #FFFFFF;
-    fill-opacity: 0.8;
-}
-
-circle.sportsselected {
-    stroke: #e1ff00;
-    fill: #FFFFFF;
-    fill-opacity: 0.8;
-}
-
-circle.cultureselected {
-    stroke: #e500ff;
-    fill: #FFFFFF;
-    fill-opacity: 0.8;
-}
-
-circle.placeselected {
-    stroke: #a6ff00;
-    fill: #FFFFFF;
-    fill-opacity: 0.8;
-}
-
 
 
 circle.sibling {
