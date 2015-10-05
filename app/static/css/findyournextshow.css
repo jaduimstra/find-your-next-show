@@ -5,14 +5,18 @@
 
 
 body {
-    background-color: #f6f6f6;
+    background-color: #ffffff;
+    padding-top: 40px;
 }
 
 /* HREF links */
 
 a {
-    color: blue;
+    color: #0174DF;
     text-decoration: none;
+}
+citySelect {
+    color: #5882FA;
 }
 
 a:hover {
@@ -254,7 +258,7 @@ div#movieInfo2 span.l {
 
 
 /* ....................................................................... */
-/* category dist panel */
+/* term dist panel */
 
 div#movieInfo {
     position: absolute;
@@ -545,6 +549,17 @@ text.main {
 }
 
 /* ....................................................................... */
+
+.clickInfoText {
+    font: 18px sans-serif;
+    text-align: center;
+    height: 18px;
+}
+
+div#movieInfo2 div.t {
+    font-size: 18px;
+    font-weight: bold;
+}
 
 /* no longer used */
 
