@@ -121,7 +121,7 @@ function D3ok() {
   s = getViewportSize();
   var force = d3.layout.force()
     .charge(-100)
-    .gravity(.01)
+    .gravity(.05)
     .friction(.9)
     .size( [s.w, s.h] )
     .linkStrength( function(d,idx) { return Math.pow(d.weight,1.); } );
@@ -212,7 +212,10 @@ function D3ok() {
         info += '<div>' + n.term_names[i] + '</div>';
          info += '</div>';
       }
-     
+     if(n.cluster){
+    info += '<br><div ><span class=c>Music Grouping: '+n.cluster +'</span> <br>';
+    }
+
     }
     return info;
   }
@@ -297,11 +300,6 @@ function D3ok() {
 
     if(n.hotttnesss)
     info += '<br><div ><span class=c> Hotttnesss: '+n.hotttnesss +'</span> <br>';
-
-    if(n.cluster){
-    info += '<br><div ><span class=d> Cluster number: </span> <br>';
-    info += '<br><div ><span class=l> '+n.cluster +'</span> <br>';
-    }
 
     return info;
   }
@@ -640,12 +638,12 @@ function D3ok() {
               <div class="form-group">
                 <label for="Venue_city">City Name:</label>
                 <select name="Venue_city">
-                  <option value="CA">San Francisco, CA</option>
-                  <option value="NY">New York, NY</option>
-                  <option value="WA">Seattle, WA</option>
+                  <option value="San Francisco">San Francisco, CA</option>
+                  <option value="New York">New York, NY</option>
+                  <option value="Seattle">Seattle, WA</option>
                 </select>
                <label for="Date">Date:</label>
-               <input type="text" id="Date" name='Date' placeholder="YYYY-MM-DD">
+               <input type="date" id="Date" name='Date' value="{{ in_date }}">
               <button type="submit" class="btn btn-default btn-md">Get Shows!</button>
               </div>
             </form>
@@ -659,7 +657,7 @@ function D3ok() {
    </div>
 
 <div class="container">
-    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
     
 </div> <!-- /.container-->
