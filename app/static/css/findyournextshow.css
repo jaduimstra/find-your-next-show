@@ -302,6 +302,7 @@ div#movieInfo div.f {
 div#movieInfo span.d {
     font-size: 13px;
     font-weight: bold;
+
 }
 
 div#movieInfo span.c {
@@ -361,11 +362,13 @@ div#catInfo div.f {
 
 div#catInfo span.e {
     font-size: 13px;
+    padding: 2px;
 }
 
 div#catInfo span.d {
     font-size: 13px;
     font-weight: bold;
+    padding: 2px;
 }
 
 div#catInfo span.c {
