@@ -45,7 +45,7 @@ def db_lookup(event_date='2015-10-06', venue_region='CA'):
         "a.`en_term_fq`, a.`en_term_wt`, a.`en_songs`, a.`en_genre`, "
         "a.`itunes_id`, a.`itunes_art_url`, a.`itunes_prev_url`, a.`itunes_prim_genre`, "
         "Venue.`venue_city`, Venue.`venue_name`, Event.`event_datetime`, "
-        "Event.`event_bit_id`, Event.`event_url` "
+        "Event.`event_bit_id`, Event.`event_url`, a.`k_ten` "
         "FROM `Event` "
         "INNER JOIN `Artist` AS a ON Event.`artist_fk` = a.`id` "
         "INNER JOIN `Venue` ON Event.`venue_fk` = Venue.`id` "
@@ -98,7 +98,6 @@ def graph_from_df(df, min_wt=0.3):
 
 def graph_add_attributes(g, df):
     nx.set_node_attributes(g, 'label', {n:n for n in g.nodes()})
-    nx.set_node_attributes(g, 'label', {n:n for n in g.nodes()})
     attr = [('familiarity', 'en_familiarity'),
             ('hotttnesss', 'en_hotttnesss'),
             ('art_url','itunes_art_url'),
@@ -110,7 +109,8 @@ def graph_add_attributes(g, df):
             ('event_url', 'event_url'),
             ('event_id', 'event_bit_id'),
             ('term_names', 'term_names'),
-            ('term_values', 'term_values')]
+            ('term_values', 'term_values'),
+            ('cluster', 'k_ten')]
     for a in attr:
         a_dict = dict(zip(df.index, df[a[1]]))
         nx.set_node_attributes(g, a[0], a_dict)
