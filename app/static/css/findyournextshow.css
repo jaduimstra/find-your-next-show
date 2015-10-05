@@ -409,57 +409,61 @@ circle.level3 {
     fill-opacity: 0.8;
 }
 
-circle.gaming {
+circle.cluster0 {
+    stroke: #ffbf00;
+    fill-opacity: 0.8;
+}
+circle.cluster1 {
     stroke: #ffbf00;
     fill-opacity: 0.8;
 }
 
-circle.political {
+circle.cluster2 {
     stroke: #00ff55;
     fill-opacity: 0.8;
 }
 
-circle.tech {
+circle.cluster3 {
     stroke: #0a7cff;
     fill-opacity: 0.8;
 }
 
-circle.reddit {
+circle.cluster4 {
     stroke: #ff0000;
     fill-opacity: 0.8;
 }
 
-circle.hobbies {
+circle.cluster5 {
     stroke: #9900ff;
     fill-opacity: 0.8;
 }
 
-circle.life {
+circle.cluster6 {
     stroke: #5500ff;
     fill-opacity: 0.8;
 }
 
-circle.nsfw {
+circle.cluster7 {
     stroke: #ff00ae;
     fill-opacity: 0.8;
 }
 
-circle.entertainment {
+circle.l {
     stroke: #ff5e00;
     fill-opacity: 0.8;
 }
 
-circle.science {
+circle.cluster8 {
     stroke: #00ffd9;
     fill-opacity: 0.8;
 }
 
-circle.sports {
+circle.cluster9 {
     stroke: #e1ff00;
     fill-opacity: 0.8;
 }
 
-circle.culture {
+circle.cluster10 {
     stroke: #e500ff;
     fill-opacity: 0.8;
 }
@@ -607,126 +611,13 @@ text.main {
 
 /*.........................................................................*/
 
-.chartgaming div {
+.chartterms div {
   font: 13px sans-serif;
-  font-weight: bold;
-  background-color: #ffbf00;
   text-align: left;
-  padding: 3px;
+  padding: 2px;
   margin: 1px;
   color: black;
 }
-
-.chartpolitical div {
-  font: 13px sans-serif;
-  font-weight: bold;
-  background-color: #00ff55;
-  text-align: left;
-  padding: 3px;
-  margin: 1px;
-  color: black;
-} 
-
-.charttech div {
-  font: 13px sans-serif;
-  font-weight: bold;
-  background-color: #0a7cff;
-  text-align: left;
-  padding: 3px;
-  margin: 1px;
-  color: black;
-} 
-
-.chartreddit div {
-  font: 13px sans-serif;
-  font-weight: bold;
-  background-color: #ff0000;
-  text-align: left;
-  padding: 3px;
-  margin: 1px;
-  color: black;
-} 
-
-.charthobbies div {
-  font: 13px sans-serif;
-  font-weight: bold;
-  background-color: #9900ff;
-  text-align: left;
-  padding: 3px;
-  margin: 1px;
-  color: black;
-} 
-
-.chartlife div {
-  font: 13px sans-serif;
-  font-weight: bold;
-  background-color: #5500ff;
-  text-align: left;
-  padding: 3px;
-  margin: 1px;
-  color: black;
-} 
-
-.chartnsfw div {
-  font: 13px sans-serif;
-  font-weight: bold;
-  background-color: #ff00ae;
-  text-align: left;
-  padding: 3px;
-  margin: 1px;
-  color: black;
-} 
-
-.chartentertainment div {
-  font: 13px sans-serif;
-  font-weight: bold;
-  background-color: #ff5e00;
-  text-align: left;
-  padding: 3px;
-  margin: 1px;
-  color: black;
-} 
-
-.chartscience div {
-  font: 13px sans-serif;
-  font-weight: bold;
-  background-color: #00ffd9;
-  text-align: left;
-  padding: 3px;
-  margin: 1px;
-  color: black;
-} 
-
-.chartsports div {
-  font: 13px sans-serif;
-  font-weight: bold;
-  background-color: #e1ff00;
-  text-align: left;
-  padding: 3px;
-  margin: 1px;
-  color: black;
-} 
-
-.chartculture div {
-  font: 13px sans-serif;
-  font-weight: bold;
-  background-color: #e500ff;
-  text-align: left;
-  padding: 3px;
-  margin: 1px;
-  color: black;
-} 
-
-.chartplace div {
-  font: 13px sans-serif;
-  font-weight: bold;
-  background-color: #a6ff00;
-  text-align: left;
-  padding: 3px;
-  margin: 1px;
-  color: black;
-} 
-
 
 /* ....................................................................... */
 

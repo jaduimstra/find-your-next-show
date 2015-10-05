@@ -95,7 +95,7 @@ function D3ok() {
   // WIDTH = 960
   var WIDTH = 200;
   var HEIGHT = 700;
-  var SHOW_THRESHOLD = .99;
+  var SHOW_THRESHOLD = 3;
 
   // Variables keeping graph state
   var activeMovie = undefined;
@@ -202,31 +202,18 @@ function D3ok() {
       //info += '<div class=t style="float: left"><a href="' + n.event_url + '">'+n.label+'</a></div>';
 
     //info += '<br/></div><div style="clear: both;">'
-    info += '<div ><span class=d>Top 5 Descriptive Terms</span> <br>';
+    info += '<div ><span class=d>Top Descriptive Terms</span> <br>';
 
     if(n.term_names) {
       
       //for(i = 0, len = n.term_names.length; i<len; i++){
-      for(i = 0, len = n.term_names.length; i< (5 || len); i++){
-        info += '<div class="chart'+n.term_names[i]+'">';
-        info += '<div style="width: ' + Number((n.term_values[i]*2500).toFixed(0)) + 'px;">' + n.term_names[i] + '</div>';
+      for(i = 0, len = n.term_names.length; i<5 && i<len; i++){
+        info += '<div class="chartterms">';
+        info += '<div>' + n.term_names[i] + '</div>';
          info += '</div>';
       }
      
     }
-
-    if( n.links ) {
-    info += '<br><div ><span class=d>Related to</span>: <br>';
-    for (k = 0, len = Math.min(n.links.length,10); k<len; k++){
-    var idx = n.links[k];
-    info +=' [<a href="javascript:void(0);" onclick="selectMovie('  
-     + idx + ',true);">' + nodeArray[idx].label +'</a>]<br>';
-    }
-    info += '</div>';
-    }
-    info += '<br>';
-
-
     return info;
   }
 
@@ -311,9 +298,9 @@ function D3ok() {
     if(n.hotttnesss)
     info += '<br><div ><span class=c> Hotttnesss: '+n.hotttnesss +'</span> <br>';
 
-    if(n.description){
-    info += '<br><div ><span class=d>Description:</span> <br>';
-    info += '<br><div ><span class=l> '+n.description +'</span> <br>';
+    if(n.cluster){
+    info += '<br><div ><span class=d> Cluster number: </span> <br>';
+    info += '<br><div ><span class=l> '+n.cluster +'</span> <br>';
     }
 
     return info;
@@ -375,10 +362,10 @@ function D3ok() {
     .data( nodeArray, function(d){return d.label} )
     .enter().append("svg:circle")
     .attr('id', function(d) { return "c" + d.index } )
-    .attr('class', function(d) { return 'node level'+d.level;} )
+    .attr('class', function(d) { return 'cluster'+d.cluster;} )
     //.attr('class', function(d) { return 'node '+d.cat1;} )
     //.attr('class', function(d) { return 'node level'+d.level;} )
-    .attr('r', function(d) { return node_size(d.score || 5); } )
+    .attr('r', function(d) { return node_size(5); } )
     .attr('pointer-events', 'all')
     //.on("click", function(d) { highlightGraphNode(d,true,this); } )    
     .on("click", function(d) { showMoviePanel(d); } )
