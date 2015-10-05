@@ -1,5 +1,7 @@
-from flask import render_template, request
 import pymysql as mdb
+import datetime
+from flask import render_template, request
+
 from app import app
 import graph_analytics as ga
 
@@ -10,11 +12,15 @@ def index():
 
 @app.route('/output')
 def output():
+    cities = {"San Francisco":"CA",
+              "New York":"NY",
+              "Seattle":"WA"}
     city = request.args.get('Venue_city')
     date = request.args.get('Date')
-    #j_graph  = 'static/js/json/sf_sept15.json'
-    #j_graph  = 'static/js/json/foo.json'
-    #j_graph = 'static/js/json/2015-10-07_NY.json'
-    j_graph = ga.generate_json_graph(date, city)
-    return render_template("output.html", jsonfile = j_graph)
+    try:
+        datetime.datetime.strptime(date, '%Y-%m-%d')
+    except ValueError:
+        return render_template("base.html")
+    j_graph = ga.generate_json_graph(date, cities[city])
+    return render_template("output.html", jsonfile = j_graph, in_date=date)
 
