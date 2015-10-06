@@ -1,7 +1,9 @@
 import pickle
 import pymysql as mdb
-import pyapi
 import re
+import sys
+import pyapi
+
 
 bit = pyapi.Pyapi('bandsintown')
 
@@ -46,7 +48,9 @@ def insert_event(a_dict, e_dict, v_dict):
                     .format(d[1], d[2], d[0][d[2]]))
         except UnicodeEncodeError:
             break
-        if row_id == 0:
+        if row_id != 0:
+            fk_id[d[1]] = row_id
+        else:
             columns, values = gen_key_value(d[0])
             try:
                 sql = ("""INSERT INTO {0} ({1}) VALUES (\"{2}\")"""
@@ -62,26 +66,36 @@ def insert_event(a_dict, e_dict, v_dict):
                 rows = cur.fetchall()
                 for row in rows:
                     fk_id[d[1]] = row[0]
-        else:
-            fk_id[d[1]] = row_id
     #Now insert the Event using the fk_ids from the Artist and Venue tables
+    #after checking to see if this event, artist, and venue are already
+    #in the db
     e_col, e_val = gen_key_value(e_dict)
     for fk in fk_id:
         e_col = e_col + ', {0}_fk'.format(fk.lower())
         e_val = e_val + '", \"{0}'.format(fk_id[fk])
     try:
-        sql = ("""INSERT INTO Event ({0}) VALUES (\"{1}\")"""
+        sql2 = ("""INSERT INTO Event ({0}) VALUES (\"{1}\")"""
                .format(e_col, e_val))
-        print
-        print sql
     except UnicodeEncodeError:
         return
-    with con:
-        cur = con.cursor()
-        cur.execute(sql)
-    con.commit()
+    try:
+        event_check_sql = ("SELECT id FROM Event WHERE artist_fk = {0} "
+                           "AND venue_fk = {1} "
+                           "AND event_bit_id = {2}").format(fk_id['Artist'],
+                                                 fk_id['Venue'],
+                                                 e_dict['event_bit_id'])
+    except KeyError:
+        return
+    if check_entry(event_check_sql) == 0:
+        print sql2
+        with con:
+            cur = con.cursor()
+            cur.execute(sql2)
+        #con.commit()
+    else:
+        return
 
-def db_write_all_pages(location='San Francisco,CA', date='all'):
+def db_write_all_pages(location='San Francisco,CA', date='upcoming'):
     """Writes all new events to the Events TABLE
 
     BandInTown API details:
@@ -147,18 +161,16 @@ def db_write_all_pages(location='San Francisco,CA', date='all'):
                     # for some reason, some of the artist names have a " in them!!
                     a_dict['artist_bit_name'] = scrub(artist['name'])
                     a_dict['artist_bit_url'] = artist['url']
-                    print a_dict
-                    print
                     insert_event(a_dict, e_dict, v_dict)
         page += 1
         #if page > 1:
         if len(bit_req) < 100:
             break
 
-def main():
-    #create_events_table()
-    db_write_all_pages(location= 'San Francisco,CA', date = 'upcoming')
+def main(location, date):
+    db_write_all_pages(location=location, date =date)
 
 
 if __name__ == '__main__':
-    main()
+    cities = {'SF':'San Francisco,CA', 'NY':'New York,NY', 'SE':'Seattle,WA'}
+    main(cities[sys.argv[1]], sys.argv[2])
