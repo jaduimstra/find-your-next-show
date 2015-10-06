@@ -94,14 +94,18 @@ def get_kmeans():
 
 def calc_cluster(nparray, model):
     cluster = model.predict(nparray)
-    return cluster[0]
+    # set '0' cluster to '10' for plotting
+    if cluster[0] == 0:
+        return 10
+    else:
+        return cluster[0]
 
 
 def get_all_artist_en_info(all_terms, engine, en, k_model):
     """
     """
     sql = ("SELECT id, artist_bit_name, artist_bit_mbid FROM Artist "
-        "WHERE artist_en_id is NULL") 
+        "WHERE artist_en_id is NULL ") 
         #2740, skip 5531,5532,5753, 7647, 7651 
         #7737, 9854, 10693, 12353 (genre), 6189 (% in artist name)
         #WHERE artist_en_id IS NULL")
