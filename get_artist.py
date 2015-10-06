@@ -5,9 +5,10 @@ import pandas as pd
 import cPickle
 import json
 import re
+from sklearn.cluster import KMeans
 from pyechonest import artist as a
 from pyechonest import util
-from numpy import zeros
+from numpy import asarray
 import pyapi
 from pyapi import PyapiException
 
@@ -87,16 +88,22 @@ def get_artist_info_pyapi(en, artist_mbid=None, artist_name=None):
     else:
         return success, artist
 
-def pickle_it(data):
-    return cPickle.dumps(data, protocol = (cPickle.HIGHEST_PROTOCOL))
+def get_kmeans():
+    with open('kmeans_2015104.pik') as f:
+        return cPickle.load(f)
 
-def get_all_artist_en_info(all_terms, engine, en):
+def calc_cluster(nparray, model):
+    cluster = model.predict(nparray)
+    return cluster[0]
+
+
+def get_all_artist_en_info(all_terms, engine, en, k_model):
     """
     """
     sql = ("SELECT id, artist_bit_name, artist_bit_mbid FROM Artist "
-        "WHERE id > 10693") 
+        "WHERE artist_en_id is NULL") 
         #2740, skip 5531,5532,5753, 7647, 7651 
-        #7737, 9854, 10693 (genre), 6189 (% in artist name)
+        #7737, 9854, 10693, 12353 (genre), 6189 (% in artist name)
         #WHERE artist_en_id IS NULL")
     # pd sql query requires a sqlalchemy engine
     df_artists = pd.read_sql_query(sql, engine)
@@ -118,8 +125,8 @@ def get_all_artist_en_info(all_terms, engine, en):
             d['artist_en_id'] = info['id']
             d['en_familiarity'] = info['familiarity']
             d['en_hotttnesss'] = info['hotttnesss']
-            if len(info['genres']) != 0:
-                d['en_genre'] = info['genres'] #change at id 5531
+            #if len(info['genres']) != 0:
+                #d['en_genre'] = info['genres'] #change at id 5531
             for term in info['terms']:
                 # in case a term is not in the all_terms
                 try:
@@ -131,6 +138,7 @@ def get_all_artist_en_info(all_terms, engine, en):
             d['en_term_fq'] = json.dumps(term_fq_vec)
             d['en_term_wt'] = json.dumps(term_wt_vec)
             #d['en_songs'] = [scrub(song['title']) for song in info['songs']]
+            d['k_ten'] = calc_cluster(asarray(term_wt_vec), k_model)
             print d['en_term_wt']
             try:
                 col_val = ['{0} = "{1}"'.format(col, d[col]) for col in d]
@@ -148,7 +156,8 @@ def main():
     engine = sa.create_engine(db_connect_string)
     en = pyapi.Pyapi('echonest')
     all_terms = get_all_terms(en)
-    get_all_artist_en_info(all_terms, engine, en)
+    k_model = get_kmeans()
+    get_all_artist_en_info(all_terms, engine, en, k_model)
 
 if __name__ == '__main__':
     #all_info, all_terms = 
