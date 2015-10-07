@@ -641,9 +641,9 @@ function D3ok() {
               <div class="form-group">
                 <label for="Venue_city">City Name:</label>
                 <select name="Venue_city">
-                  <option value="San Francisco">San Francisco, CA</option>
-                  <option value="New York">New York, NY</option>
-                  <option value="Seattle">Seattle, WA</option>
+                  <option value="San Francisco"{% if city=='San Francisco' %} selected="selected"{% endif %}>San Francisco, CA</option>
+                  <option value="New York"{% if city=='New York' %} selected="selected"{% endif %}>New York, NY</option>
+                  <option value="Seattle"{% if city=='Seattle' %} selected="selected"{% endif %}>Seattle, WA</option>
                 </select>
                <label for="Date">Date:</label>
                <input type="date" id="Date" name='Date' value="{{ in_date }}">
