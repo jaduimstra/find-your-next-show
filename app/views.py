@@ -24,4 +24,3 @@ def output():
     j_graph = ga.generate_json_graph(date, cities[city])
     return render_template("output.html", jsonfile = j_graph, 
                            in_date=date, city=city)
-
