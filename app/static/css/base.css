@@ -1,0 +1,38 @@
+body {
+    padding-top: 120px;                                                                                                                       
+    background: url("/static/images/banner.jpg");                                                                                                       
+    -moz-background-size: cover;                                                                                                                             
+    -webkit-background-size: cover;                                                                                                                          
+    background-repeat: no-repeat;                                                                                                                            
+    background-attachment: fixed;                                                                                                                            
+    background-position: center;                                                                                                                             
+    background-size: cover;
+}
+
+.all-center {
+  min-width: auto;
+  display: flex;
+  -webkit-display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* HREF links */
+
+a {
+    color: #0174DF;
+    text-decoration: none;
+}
+citySelect {
+    color: #0174DF;
+    font-size: 16px;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+.clickInfoText {
+    font: 18px sans-serif;
+    text-align: center;
+    height: 18px;
+}
+

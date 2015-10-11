@@ -10,8 +10,6 @@
     <meta name="author" content="">
     <link rel="icon" href="../../favicon.ico">
 
-    <link rel="stylesheet" href="/static/css/findyournextshow.css">
-
     <title>findyournextshow</title>
 
     <!-- Bootstrap core CSS -->
@@ -21,7 +19,6 @@
     <title>findyournextshow.com</title>
     <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-    <script src="../../assets/js/ie-emulation-modes-warning.js"></script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -29,30 +26,34 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
    <script>
-      // Sniff MSIE version
-      // http://james.padolsey.com/javascript/detect-ie-in-js-using-conditional-comments/
-      var ie = ( function() {
-        var undef,
-        v = 3,
-        div = document.createElement('div'),
-        all = div.getElementsByTagName('i');
-        while (
-          div.innerHTML='<!--[if gt IE ' + (++v) + ']><i></i><![endif]-->',all[0]
-        );
-        return v > 4 ? v : undef;
-        }() );
-        function takeAction() {
-          if( ie && ie < 9 ) {
+    // Sniff MSIE version
+    // http://james.padolsey.com/javascript/detect-ie-in-js-using-conditional-comments/
+    var ie = ( function() {
+      var undef,
+      v = 3,
+      div = document.createElement('div'),
+      all = div.getElementsByTagName('i');
+      while (
+        div.innerHTML='<!--[if gt IE ' + (++v) + ']><i></i><![endif]-->',all[0]
+      );
+      return v > 4 ? v : undef;
+      }() );
+
+    function takeAction() {
+      if( ie && ie < 9 ) {
         D3notok();
-          } else {
-            // Load D3.js, and once loaded do our stuff
-            var head = document.getElementsByTagName('head')[0];
-            var script = document.createElement('script');
-            script.type = 'text/javascript';
-        script.src = "/static/js/d3.min.js";
-            script.addEventListener('load', D3ok, false);
-            script.onload = "D3ok();";
-        head.appendChild(script);
+        } 
+      else {
+          // Load D3.js, and once loaded do our stuff
+          var head = document.getElementsByTagName('head')[0];
+          var script = document.createElement('script');
+          script.type = 'text/javascript';
+          script.src = "/static/js/d3.min.js";
+          script.addEventListener('load', D3ok, false);
+          script.addEventListener('load', drawLegend, false);
+          script.onload = "drawLegend();";
+          script.onload = "D3ok();";
+      head.appendChild(script);
         }
     }
 
@@ -65,6 +66,53 @@
 	 var t = document.getElementsByTagName('body');
 	 var body = document.getElementsByTagName('body')[0];
   }	
+
+// Create an svg legend that is not part of the networkGraph
+function drawLegend() {
+  //Width and height
+  var w = 200;
+  var h = 300;
+
+  var svg = d3.select("#clusterInfo")
+    .append("svg")
+    .attr("width", w)
+    .attr("height", h);
+    //.attr("id","graph")
+  var legend_data = [
+                      {"cluster" : 2, "label" : 'indie rock'},
+                      {"cluster" : 3, "label" : 'folk, singer-songwriter'},
+                      {"cluster" : 4, "label" : 'jazz'},
+                      {"cluster" : 5, "label" : 'hiphop'},
+                      {"cluster" : 7, "label" : 'pop'},
+                      {"cluster" : 6, "label" : 'metal'},
+                      {"cluster" : 8, "label" : 'electronica'},
+                      {"cluster" : 1, "label" : 'ill-defined'},
+                      {"cluster" : 9, "label" : 'hard/classic rock'},
+                      {"cluster" : 10, "label" : 'punk'}
+                    ];
+
+  svg.selectAll("circle")
+      .data(legend_data)
+      .enter()
+      .append("circle")
+      .attr("cx", 10)
+      .attr("cy", function(d, i) { return i * 25 +15; })
+      .attr('r', 5)
+      .attr('class', function(d) { return 'cluster' + d.cluster; });
+      //.style("stroke", function(d) { return 'cluster' + d.cluster; });
+
+  svg.selectAll("text")
+      .data(legend_data)
+      .enter()
+      .append("text")
+      .attr("x", 25)
+      .attr("y", function(d, i) { return i * 25 + 20; })
+      .attr("height",30)
+      .attr("width",100)
+      .attr("font-size", "14px")
+      .text( function(d) { return d.label });
+  }
+
 
 // -------------------------------------------------------------------
 // A number of forward declarations. These variables need to be defined since 
@@ -95,7 +143,7 @@ function D3ok() {
   // Some constants
   // WIDTH = 960
   var WIDTH = 100;
-  var HEIGHT = 700;
+  var HEIGHT = 800;
   var SHOW_THRESHOLD = 3;
 
   // Variables keeping graph state
@@ -122,7 +170,7 @@ function D3ok() {
   s = getViewportSize();
   var force = d3.layout.force()
     .charge(-100)
-    .gravity(.07)
+    .gravity(.05)
     .friction(.9)
     .size( [s.w, s.h] )
     .linkStrength( function(d,idx) { return Math.pow(d.weight,1.); } );
@@ -133,12 +181,12 @@ function D3ok() {
     .attr("width", WIDTH+"%")
     .attr("height", HEIGHT)
     .attr("id","graph")
-    .attr("viewBox", "0 0 "  )
+    //.attr("viewBox", "0 0 " +WIDTH + " " + HEIGHT)
     .attr("preserveAspectRatio", "xMidYMid meet");
 
   // Movie panel: the div into which the movie details info will be written
   movieInfoDiv = d3.select("#movieInfo");
-  //CategoryInfoDiv = d3.select("#catInfo");
+  //clusterInfoDiv = d3.select("#clusterInfo");
   /* ....................................................................... */
 
   // Get the current size & offset of the browser's viewport window
@@ -162,13 +210,10 @@ function D3ok() {
        y: d.body.scrollTop};
   }
 
-
-
   function getQStringParameterByName(name) {
     var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
     return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
   }
-
 
   /* Change status of a panel from visible to hidden or viceversa
   id: identifier of the div to change
@@ -182,7 +227,6 @@ function D3ok() {
     return false;
   }
 
-
   /* Clear all help boxes and select a movie in the network and in the 
   movie details panel
   */
@@ -191,7 +235,6 @@ function D3ok() {
     toggleDiv('help','off'); 
     selectMovie(id,true); // we use here the selectMovie() closure
   }
-
 
   /* Compose the content for the panel with movie details.
   Here, compose content for panel on left hand side
@@ -204,85 +247,23 @@ function D3ok() {
 
     //info += '<br/></div><div style="clear: both;">'
     info += '<div ><span class=d>Top Descriptive Terms</span> <br>';
-
     if(n.term_names) {
-      
-      //for(i = 0, len = n.term_names.length; i<len; i++){
       for(i = 0, len = n.term_names.length; i<5 && i<len; i++){
         info += '<div class="chartterms">';
         info += '<div>' + n.term_names[i] + '</div>';
-         info += '</div>';
+        info += '</div>';
       }
-     if(n.cluster){
-    info += '<br><div ><span class=c>Music Grouping: '+n.cluster +'</span> <br>';
     }
-
-    }
+    //if(n.cluster){
+    //info += '<br><div ><span class=c>Music Grouping: '+n.cluster +'</span> <br>';
+     // }
     return info;
   }
 
   // *************************************************************************
 
-  /*Second panel for right hand side of screen
-  Seems like we should be able to reuse above stuff w/o having to define
-  it again
-  */
+  /*Second panel for right hand side of screen*/
   movieInfoDiv2 = d3.select("#movieInfo2");
-  //CategoryInfoDiv = d3.select("#catInfo");
-  /* ....................................................................... */
-
-  // Get the current size & offset of the browser's viewport window
-  function getViewportSize( w ) {
-    var w = w || window;
-    if( w.innerWidth != null ) 
-    return { w: w.innerWidth, 
-       h: w.innerHeight,
-       x : w.pageXOffset,
-       y : w.pageYOffset };
-    var d = w.document;
-    if( document.compatMode == "CSS1Compat" )
-    return { w: d.documentElement.clientWidth,
-       h: d.documentElement.clientHeight,
-       x: d.documentElement.scrollLeft,
-       y: d.documentElement.scrollTop };
-    else
-    return { w: d.body.clientWidth, 
-       h: d.body.clientHeight,
-       x: d.body.scrollLeft,
-       y: d.body.scrollTop};
-    }
-
-
-
-  function getQStringParameterByName(name) {
-    var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
-    return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
-  }
-
-
-  /* Change status of a panel from visible to hidden or viceversa
-  id: identifier of the div to change
-  status: 'on' or 'off'. If not specified, the panel will toggle status
-  */
-  toggleDiv = function( id, status ) {
-    d = d3.select('div#'+id);
-    if( status === undefined )
-    status = d.attr('class') == 'panel_on' ? 'off' : 'on';
-    d.attr( 'class', 'panel_' + status );
-    return false;
-  }
-
-
-  /* Clear all help boxes and select a movie in the network and in the 
-  movie details panel
-  */
-  //clearAndSelect = function (id) {
-  //toggleDiv('faq','off'); 
-  //toggleDiv('help','off'); 
-  //selectMovie(id,true); // we use here the selectMovie() closure
-  //}
-
-
   /* Compose the content for the panel with movie details.
   Parameters: the node data, and the array containing all nodes
   */
@@ -340,274 +321,266 @@ function D3ok() {
     svg.call( d3.behavior.zoom()
       .x(xScale)
       .y(yScale)
-      .scaleExtent([.3,3])
+      .scaleExtent([.3,4])
       .on("zoom", doZoom) );
 
-  // ------- Create the elements of the layout (links and nodes) ------
+    // ------- Create the elements of the layout (links and nodes) ------
 
-  var networkGraph = svg.append('svg:g').attr('class','grpParent');
+    var networkGraph = svg.append('svg:g').attr('class','grpParent');
 
-  // links: simple lines
-  var graphLinks = networkGraph.append('svg:g').attr('class','grp gLinks')
-    .selectAll("line")
-    .data(linkArray, function(d) {return d.source.id+'-'+d.target.id;} )
-    .enter().append("line")
-    .style('stroke-width', function(d) { return edge_width(d.weight);} )
-    .attr("class", "link");
+    // links: simple lines
+    var graphLinks = networkGraph.append('svg:g').attr('class','grp gLinks')
+      .selectAll("line")
+      .data(linkArray, function(d) {return d.source.id+'-'+d.target.id;} )
+      .enter().append("line")
+      .style('stroke-width', function(d) { return edge_width(d.weight);} )
+      .attr("class", "link");
 
-  // nodes: an SVG circle
-  var graphNodes = networkGraph.append('svg:g').attr('class','grp gNodes')
-    .selectAll("circle")
-    .data( nodeArray, function(d){return d.label} )
-    .enter().append("svg:circle")
-    .attr('id', function(d) { return "c" + d.index } )
-    .attr('class', function(d) { return 'cluster'+d.cluster;} )
-    //.attr('class', function(d) { return 'node '+d.cat1;} )
-    //.attr('class', function(d) { return 'node level'+d.level;} )
-    .attr('r', function(d) { return node_size(5); } )
-    .attr('pointer-events', 'all')
-    //.on("click", function(d) { highlightGraphNode(d,true,this); } )    
-    .on("click", function(d) { showMoviePanel(d); } )
-    .on("click", function(d) { showMoviePanel2(d); } )
-    .on("mouseover", function(d) { highlightGraphNode(d,true,this);  } )
-    .on("mouseout",  function(d) { highlightGraphNode(d,false,this); } );
+    // nodes: an SVG circle
+    var graphNodes = networkGraph.append('svg:g').attr('class','grp gNodes')
+      .selectAll("circle")
+      .data( nodeArray, function(d){return d.label} )
+      .enter().append("svg:circle")
+      .attr('id', function(d) { return "c" + d.index } )
+      .attr('class', function(d) { return 'cluster'+d.cluster;} )
+      //.attr('class', function(d) { return 'node '+d.cat1;} )
+      //.attr('class', function(d) { return 'node level'+d.level;} )
+      .attr('r', 5)//function(d) { return node_size(2); } )
+      .attr('pointer-events', 'all')
+      //.on("click", function(d) { highlightGraphNode(d,true,this); } )    
+      //.on("click", function(d) { showMoviePanel(d); } )
+      .on("click", function(d) { showMoviePanel2(d); } )
+      .on("mouseover", function(d) { highlightGraphNode(d,true,this);  } )
+      .on("mouseout",  function(d) { highlightGraphNode(d,false,this); } );
 
-  // labels: a group with two SVG text: a title and a shadow (as background)
-  var graphLabels = networkGraph.append('svg:g').attr('class','grp gLabel')
-    .selectAll("g.label")
-    .data( nodeArray, function(d){return d.label} )
-    .enter().append("svg:g")
-    .attr('id', function(d) { return "l" + d.index; } )
-    .attr('class','label');
+    // labels: a group with two SVG text: a title and a shadow (as background)
+    var graphLabels = networkGraph.append('svg:g').attr('class','grp gLabel')
+      .selectAll("g.label")
+      .data( nodeArray, function(d){return d.label} )
+      .enter().append("svg:g")
+      .attr('id', function(d) { return "l" + d.index; } )
+      .attr('class','label');
 
-  shadows = graphLabels.append('svg:text')
-    .attr('x','-2em')
-    .attr('y','-.3em')
-    .attr('pointer-events', 'none') // they go to the circle beneath
-    .attr('id', function(d) { return "lb" + d.index; } )
-    .attr('class','nshadow')
-    .text( function(d) { return d.label; } );
+    shadows = graphLabels.append('svg:text')
+      .attr('x','-2em')
+      .attr('y','-.3em')
+      .attr('pointer-events', 'none') // they go to the circle beneath
+      .attr('id', function(d) { return "lb" + d.index; } )
+      .attr('class','nshadow')
+      .text( function(d) { return d.label; } );
 
-  labels = graphLabels.append('svg:text')
-    .attr('x','-2em')
-    .attr('y','-.3em')
-    .attr('pointer-events', 'none') // they go to the circle beneath
-    .attr('id', function(d) { return "lf" + d.index; } )
-    .attr('class','nlabel')
-    .text( function(d) { return d.label; } );
+    labels = graphLabels.append('svg:text')
+      .attr('x','-2em')
+      .attr('y','-.3em')
+      .attr('pointer-events', 'none') // they go to the circle beneath
+      .attr('id', function(d) { return "lf" + d.index; } )
+      .attr('class','nlabel')
+      .text( function(d) { return d.label; } );
 
 
-  /* --------------------------------------------------------------------- */
-  /* Select/unselect a node in the network graph.
-  Parameters are: 
-  - node: data for the node to be changed,  
-  - on: true/false to show/hide the node
-  */
-  function highlightGraphNode( node, on )
-  {
-  //if( d3.event.shiftKey ) on = false; // for debugging
+    /* --------------------------------------------------------------------- */
+    /* Select/unselect a node in the network graph.
+    Parameters are: 
+    - node: data for the node to be changed,  
+    - on: true/false to show/hide the node
+    */
+    function highlightGraphNode( node, on )
+    {
+    //if( d3.event.shiftKey ) on = false; // for debugging
 
-  // If we are to activate a movie, and there's already one active,
-  // first switch that one off
-    if( on && activeMovie !== undefined ) {
-      highlightGraphNode( nodeArray[activeMovie], false );
-  }
+    // If we are to activate a movie, and there's already one active,
+    // first switch that one off
+      if( on && activeMovie !== undefined ) {
+        highlightGraphNode( nodeArray[activeMovie], false );
+      }
 
-  // locate the SVG nodes: circle & label group
-  circle = d3.select( '#c' + node.index );
-  label  = d3.select( '#l' + node.index );
+    // locate the SVG nodes: circle & label group
+    circle = d3.select( '#c' + node.index );
+    label  = d3.select( '#l' + node.index );
 
-  // activate/deactivate the node itself
-  circle
-    .classed( 'main', on );
-  label
-    .classed( 'on', on || currentZoom >= SHOW_THRESHOLD );
-        label.selectAll('text')
-    .classed( 'main', on );
+    // activate/deactivate the node itself
+    circle
+      .classed( 'main', on );
+    label
+      .classed( 'on', on || currentZoom >= SHOW_THRESHOLD );
+          label.selectAll('text')
+      .classed( 'main', on );
 
-        // activate all siblings
-        Object(node.links).forEach( function(id) {
-    d3.select("#c"+id).classed( 'sibling', on );
-    label = d3.select('#l'+id);
-    label.classed( 'on', on || currentZoom >= SHOW_THRESHOLD );
-    label.selectAll('text.nlabel')
-      .classed( 'sibling', on );
-        } );
+    // activate all siblings
+    /*Object(node.links).forEach( function(id) {
+      d3.select("#c"+id).classed( 'sibling', on );
+      label = d3.select('#l'+id);
+      label.classed( 'on', on || currentZoom >= SHOW_THRESHOLD );
+      label.selectAll('text.nlabel')
+        .classed( 'sibling', on );
+          } ); */
 
         // set the value for the current active movie
         activeMovie = on ? node.index : undefined;
       }
 
 
-      /* --------------------------------------------------------------------- */
-      /* Show the details panel for a movie AND highlight its node in 
-         the graph. Also called from outside the d3.json context.
-         Parameters:
-         - new_idx: index of the movie to show
-         - doMoveTo: boolean to indicate if the graph should be centered
-           on the movie
-      */
-      selectMovie = function( new_idx, doMoveTo ) {
+    /* --------------------------------------------------------------------- */
+    /* Show the details panel for a movie AND highlight its node in 
+       the graph. Also called from outside the d3.json context.
+       Parameters:
+       - new_idx: index of the movie to show
+       - doMoveTo: boolean to indicate if the graph should be centered
+         on the movie
+    */
+    selectMovie = function( new_idx, doMoveTo ) {
 
-        // do we want to center the graph on the node?
-        doMoveTo = doMoveTo || false;
-        if( doMoveTo ) {
-    s = getViewportSize();
-    width = s.w;
-    //width  = s.w<WIDTH ? s.w : WIDTH;
-    //height = s.h<HEIGHT ? s.h : HEIGHT;
-    height = s.h;
-    offset = { x : s.x + width/2  - nodeArray[new_idx].x*currentZoom,
-         y : s.y + height/2 - nodeArray[new_idx].y*currentZoom };
-    repositionGraph( offset, undefined, 'move' );
+      // do we want to center the graph on the node?
+      doMoveTo = doMoveTo || false;
+      if( doMoveTo ) {
+      s = getViewportSize();
+      width = s.w;
+      //width  = s.w<WIDTH ? s.w : WIDTH;
+      //height = s.h<HEIGHT ? s.h : HEIGHT;
+      height = s.h;
+      offset = { x : s.x + width/2  - nodeArray[new_idx].x*currentZoom,
+           y : s.y + height/2 - nodeArray[new_idx].y*currentZoom };
+      repositionGraph( offset, undefined, 'move' );
+          }
+          // Now highlight the graph node and show its movie panel
+          highlightGraphNode( nodeArray[new_idx], true );
+          //showMoviePanel( nodeArray[new_idx] );
+          showMoviePanel2( nodeArray[new_idx] );
         }
-        // Now highlight the graph node and show its movie panel
-        highlightGraphNode( nodeArray[new_idx], true );
-        showMoviePanel( nodeArray[new_idx] );
-        showMoviePanel2( nodeArray[new_idx] );
-      }
 
 
-      /* --------------------------------------------------------------------- */
-      /* Show the movie details panel for a given node
-       */
-      function showMoviePanel( node ) {
-        // Fill it and display the panel
-        movieInfoDiv
-    .html( getMovieInfo(node,nodeArray) )
-    .attr("class","panel_on");
-      }
+    /* --------------------------------------------------------------------- */
+    /* Show the movie details panel for a given node
+     */
+    function showMoviePanel( node ) {
+      // Fill it and display the panel
+      movieInfoDiv
+      .html( getMovieInfo(node,nodeArray) )
+      .attr("class","panel_on");
+        }
 
-      function showMoviePanel2( node ) {
-        // Fill it and display the panel
-        movieInfoDiv2
-    .html( getMovieInfo2(node,nodeArray) )
-    .attr("class","panel_on");
-    movieInfoDiv
-    .html( getMovieInfo(node,nodeArray) )
-    .attr("class","panel_on");
-      }
+    function showMoviePanel2( node ) {
+      // Fill it and display the panel
+      movieInfoDiv2
+      .html( getMovieInfo2(node,nodeArray) )
+      .attr("class","panel_on");
+      movieInfoDiv
+      .html( getMovieInfo(node,nodeArray) )
+      .attr("class","panel_on");
+        }
+              
+    /* --------------------------------------------------------------------- */
+    /* Move all graph elements to its new positions. Triggered:
+       - on node repositioning (as result of a force-directed iteration)
+       - on translations (user is panning)
+       - on zoom changes (user is zooming)
+       - on explicit node highlight (user clicks in a movie panel link)
+       Set also the values keeping track of current offset & zoom values
+    */
+    function repositionGraph( off, z, mode ) {
 
-      //function showCategoryDist( node ) {
-        // Fill it and display the panel
-      //  CategoryInfoDiv
-    //.html( getCategoryInfo(node,nodeArray) )
-    //.attr("class","panel_on");
-     // }
+      // do we want to do a transition?
+      var doTr = (mode == 'move');
 
-        
-      /* --------------------------------------------------------------------- */
-      /* Move all graph elements to its new positions. Triggered:
-         - on node repositioning (as result of a force-directed iteration)
-         - on translations (user is panning)
-         - on zoom changes (user is zooming)
-         - on explicit node highlight (user clicks in a movie panel link)
-         Set also the values keeping track of current offset & zoom values
-      */
-      function repositionGraph( off, z, mode ) {
-
-        // do we want to do a transition?
-        var doTr = (mode == 'move');
-
-        // drag: translate to new offset
-        if( off !== undefined &&
+      // drag: translate to new offset
+      if( off !== undefined &&
       (off.x != currentOffset.x || off.y != currentOffset.y ) ) {
-    g = d3.select('g.grpParent')
-    if( doTr )
-      g = g.transition().duration(500);
-    g.attr("transform", function(d) { return "translate("+
-              off.x+","+off.y+")" } );
-    currentOffset.x = off.x;
-    currentOffset.y = off.y;
+        g = d3.select('g.grpParent')
+        if( doTr )
+          g = g.transition().duration(500);
+        g.attr("transform", function(d) { return "translate("+
+                  off.x+","+off.y+")" } );
+        currentOffset.x = off.x;
+        currentOffset.y = off.y;
+          }
+
+          // zoom: get new value of zoom
+          if( z === undefined ) {
+      if( mode != 'tick' )
+        return; // no zoom, no tick, we don't need to go further
+      z = currentZoom;
+          }
+          else
+      currentZoom = z;
+
+          // move edges
+          e = doTr ? graphLinks.transition().duration(500) : graphLinks;
+          e
+      .attr("x1", function(d) { return z*(d.source.x); })
+            .attr("y1", function(d) { return z*(d.source.y); })
+            .attr("x2", function(d) { return z*(d.target.x); })
+            .attr("y2", function(d) { return z*(d.target.y); });
+
+          // move nodes
+          n = doTr ? graphNodes.transition().duration(500) : graphNodes;
+          n
+      .attr("transform", function(d) { return "translate("
+               +z*d.x+","+z*d.y+")" } );
+          // move labels
+          l = doTr ? graphLabels.transition().duration(500) : graphLabels;
+          l
+      .attr("transform", function(d) { return "translate("
+               +z*d.x+","+z*d.y+")" } );
         }
+               
 
-        // zoom: get new value of zoom
-        if( z === undefined ) {
-    if( mode != 'tick' )
-      return; // no zoom, no tick, we don't need to go further
-    z = currentZoom;
-        }
-        else
-    currentZoom = z;
-
-        // move edges
-        e = doTr ? graphLinks.transition().duration(500) : graphLinks;
-        e
-    .attr("x1", function(d) { return z*(d.source.x); })
-          .attr("y1", function(d) { return z*(d.source.y); })
-          .attr("x2", function(d) { return z*(d.target.x); })
-          .attr("y2", function(d) { return z*(d.target.y); });
-
-        // move nodes
-        n = doTr ? graphNodes.transition().duration(500) : graphNodes;
-        n
-    .attr("transform", function(d) { return "translate("
-             +z*d.x+","+z*d.y+")" } );
-        // move labels
-        l = doTr ? graphLabels.transition().duration(500) : graphLabels;
-        l
-    .attr("transform", function(d) { return "translate("
-             +z*d.x+","+z*d.y+")" } );
-      }
-             
-
-      /* --------------------------------------------------------------------- */
-      /* Perform drag
-       */
-      function dragmove(d) {
+    /* --------------------------------------------------------------------- */
+    /* Perform drag
+     */
+    function dragmove(d) {
         offset = { x : currentOffset.x + d3.event.dx,
        y : currentOffset.y + d3.event.dy };
         repositionGraph( offset, undefined, 'drag' );
       }
 
 
-      /* --------------------------------------------------------------------- */
-      /* Perform zoom. We do "semantic zoom", not geometric zoom
-       * (i.e. nodes do not change size, but get spread out or stretched
-       * together as zoom changes)
-       */
-      function doZoom( increment ) {
-        newZoom = increment === undefined ? d3.event.scale 
-            : zoomScale(currentZoom+increment);
-        if( currentZoom == newZoom )
-    return; // no zoom change
+    /* --------------------------------------------------------------------- */
+    /* Perform zoom. We do "semantic zoom", not geometric zoom
+     * (i.e. nodes do not change size, but get spread out or stretched
+     * together as zoom changes)
+     */
+    function doZoom( increment ) {
+          newZoom = increment === undefined ? d3.event.scale 
+              : zoomScale(currentZoom+increment);
+          if( currentZoom == newZoom )
+      return; // no zoom change
 
-        // See if we cross the 'show' threshold in either direction
-        if( currentZoom<SHOW_THRESHOLD && newZoom>=SHOW_THRESHOLD )
-    svg.selectAll("g.label").classed('on',true);
-        else if( currentZoom>=SHOW_THRESHOLD && newZoom<SHOW_THRESHOLD )
-    svg.selectAll("g.label").classed('on',false);
+          // See if we cross the 'show' threshold in either direction
+          if( currentZoom<SHOW_THRESHOLD && newZoom>=SHOW_THRESHOLD )
+      svg.selectAll("g.label").classed('on',true);
+          else if( currentZoom>=SHOW_THRESHOLD && newZoom<SHOW_THRESHOLD )
+      svg.selectAll("g.label").classed('on',false);
 
-        // See what is the current graph window size
-        s = getViewportSize();
-        //width  = s.w<WIDTH  ? s.w : WIDTH;
-        //height = s.h<HEIGHT ? s.h : HEIGHT;
-        width = s.w;
-        height = s.h;
+          // See what is the current graph window size
+          s = getViewportSize();
+          //width  = s.w<WIDTH  ? s.w : WIDTH;
+          //height = s.h<HEIGHT ? s.h : HEIGHT;
+          width = s.w;
+          height = s.h;
 
-        // Compute the new offset, so that the graph center does not move
-        zoomRatio = newZoom/currentZoom;
-        newOffset = { x : currentOffset.x*zoomRatio + width/2*(1-zoomRatio),
-          y : currentOffset.y*zoomRatio + height/3*(1-zoomRatio) };
+          // Compute the new offset, so that the graph center does not move
+          zoomRatio = newZoom/currentZoom;
+          newOffset = { x : currentOffset.x*zoomRatio + width/2*(1-zoomRatio),
+            y : currentOffset.y*zoomRatio + height/3*(1-zoomRatio) };
 
-        // Reposition the graph
-        repositionGraph( newOffset, newZoom, "zoom" );
-      }
+          // Reposition the graph
+          repositionGraph( newOffset, newZoom, "zoom" );
+        }
 
-      zoomCall = doZoom;  // unused, so far
+        zoomCall = doZoom;  // unused, so far
 
-      /* --------------------------------------------------------------------- */
+        /* --------------------------------------------------------------------- */
 
-      /* process events from the force-directed graph */
-      force.on("tick", function() {
-        repositionGraph(undefined,undefined,'tick');
-      });
+        /* process events from the force-directed graph */
+        force.on("tick", function() {
+          repositionGraph(undefined,undefined,'tick');
+        });
 
-      /* A small hack to start the graph with a movie pre-selected */
-      mid = getQStringParameterByName('id')
-      if( mid != null )
-        clearAndSelect( mid );
-    });
+        /* A small hack to start the graph with a movie pre-selected */
+        mid = getQStringParameterByName('id')
+        if( mid != null )
+          clearAndSelect( mid );
+    }); // end of d3.json
 
 } // end of D3ok()
 
@@ -630,13 +603,11 @@ function D3ok() {
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li><a href="/index">Home</a></li>
-            <li><a href="/static/slides.pdf">About</a></li>
-            <li><a href="https://github.com/jaduimstra/find-your-next-show">GitHub</a></li>
+            <li><a target="_blank" href="/static/slides.pdf">About</a></li>
+            <li><a target="_blank" href="https://github.com/jaduimstra/find-your-next-show">GitHub</a></li>
             </div>
-
-               
-               <div>
-                <li><citySelect>
+            <div>
+            <citySelect>
             <form action="/output" method="GET">
               <div class="form-group">
                 <label for="Venue_city">City Name:</label>
@@ -650,14 +621,15 @@ function D3ok() {
               <button type="submit" class="btn btn-default btn-md">Get Shows!</button>
               </div>
             </form>
-          </citySelect></li>
+          </citySelect>
         </div><!--/.nav-collapse -->
     </nav>
-
-<br><br><br>
- <div class="clickInfoText">
+  </div>
+<div class="container">
+    <div class="clickInfoText">
       Click on a dot to see show info about that artist!
     </div>
+</div>
 
 <div class="container">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
@@ -665,25 +637,16 @@ function D3ok() {
     
 </div> <!-- /.container-->
 
-<br><br>
-
 <div id="movieNetwork"></div>
 
-<div id="sidepanelleft">
-    
+<div id="sidepanelleft"> 
     <div id="movieInfo" class="panel_off"></div>
+    <div id="clusterInfo" class="svg"></div>
 </div>
 
-<div id="sidepaneright">
-    
+<div id="sidepanelright"> 
     <div id="movieInfo2" class="panel_off"></div>
 </div>
 
-
-   <!-- Bootstrap core JavaScript
-   ================================================== -->
-   <!-- Placed at the end of the document so the pages load faster -->
-   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-   <script src="/static/js/bootstrap.min.js"></script>
  </body>
 </html>

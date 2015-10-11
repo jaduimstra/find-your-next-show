@@ -5,10 +5,18 @@
 
 
 body {
-    background-color: #ffffff;
-    padding-top: 40px;
+    /*background-color: #ffffff;*/
+    padding-top: 100px;
+
 }
 
+.all-center {
+  min-width: auto;
+  display: flex;
+  -webkit-display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
 /* HREF links */
 
 a {
@@ -16,13 +24,13 @@ a {
     text-decoration: none;
 }
 citySelect {
-    color: #5882FA;
+    color: #0174DF;
+    font-size: 16px;
 }
 
 a:hover {
     text-decoration: underline;
 }
-
 /*a:visited {
     color: blue;
 }
@@ -87,89 +95,6 @@ div.panel_on {
 
 
 /* ....................................................................... */
-/* Help boxes */
-
-div#help {
-    margin: 6px;
-    padding: 4px;
-    background-color: #DEDFA3;
-    position: absolute;
-    width: 420px;
-    right: 0px;
-    z-index: 1001;
-    border: 1px solid #989970;
-
-    font-family: Georgia, Times New Roman, Times, serif;
-    font-size: 11pt;
-
-    -moz-transition: visibility 1.2s;
-    -o-transition: visibility 1.2s;
-    -webkit-transition: visibility 1.2s;
-    transition: visibility 1.2s;
-
-    -webkit-border-radius: 10px;
-    -moz-border-radius: 10px;
-    border-radius: 10px;
-
-    -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-    -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-}
-
-div#help ul {
-    margin: 0.5em 0em 0.5em 0em;
-    padding-left: 1.5em;
-    
-}
-
-div#help li {
-    margin: 0em;
-    padding: 0px;
-}
-
-div#faq {
-    position: absolute;
-    top: 6px;
-    left: 6px;
-    padding: 4px;
-    width: 860px;
-    height: 600px;
-    overflow-y: auto;
-    z-index: 1002;
-    background: #E5E4D6;
-
-    font-size: 11pt;
-
-    border: solid 1px #aaa;
-    border-radius: 8px;    
-    -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-    -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-}
-
-div#faq dt {
-    font-family: Verdana, Arial, Helvetica, sans-serif;
-    font-size: 13pt;    
-    color: #5D1D4D;
-    font-weight: bold;
-    margin-top: .4em;
-}
-
-div#faq dd {
-    font-family: Georgia, Times New Roman, Times, serif;
-    padding-left: 0px;
-    margin-left: 0.7em;
-}
-
-div#close_faq {
-    position: fixed; 
-    margin-left: 820px; 
-    margin-top: 0px;
-    padding: 0px;
-}
-
-
-/* ....................................................................... */
 
 div#nocontent {
     visibility: hidden;
@@ -211,7 +136,7 @@ div#movieInfo2 {
     border-radius: 8px;    
     font-family: Verdana, Arial, Helvetica, sans-serif;
     font-size: 12px;    
-    padding: 4px;
+    padding: 5px;
     text-align: right;
 }
 
@@ -262,7 +187,7 @@ div#movieInfo2 span.l {
 
 div#movieInfo {
     position: absolute;
-    top: 90px;
+    top: 95px;
     left: 10px;
     cursor: text;
     width: 200px;
@@ -277,54 +202,53 @@ div#movieInfo {
 }
 
 div#movieInfo div#cover {
-    text-align: left; 
-    height: 30px;
-}
+        text-align: left; 
+        height: 30px;
+    }
 
-div#movieInfo div.t {
-    font-size: 18px;
-    font-weight: bold;
-}
+    div#movieInfo div.t {
+        font-size: 18px;
+        font-weight: bold;
+    }
 
-div#movieInfo img.cover {
-    margin-bottom: 6px;
-    position: absolute;
-    right: 3px;
-}
+    div#movieInfo img.cover {
+        margin-bottom: 6px;
+        position: absolute;
+        right: 3px;
+    }
 
-div#movieInfo img.action {
-    cursor: pointer;
-    position: absolute;
-}
+    div#movieInfo img.action {
+        cursor: pointer;
+        position: absolute;
+    }
 
-div#movieInfo div.f {
-    border-top: 1px dotted #8E5981;
-    margin-bottom: 20px;
-    margin-top: 3px;
-}
+    div#movieInfo div.f {
+        border-top: 1px dotted #8E5981;
+        margin-bottom: 20px;
+        margin-top: 3px;
+    }
 
-div#movieInfo span.d {
-    font-size: 13px;
-    font-weight: bold;
+    div#movieInfo span.d {
+        font-size: 14px;
+        font-weight: bold;
+    }
 
-}
+    div#movieInfo span.c {
+        font-style: italic;
+    }
 
-div#movieInfo span.c {
-    font-style: italic;
-}
-
-div#movieInfo span.l {
-    font-size: 11px;
-}
+    div#movieInfo span.l {
+        font-size: 11px;
+    }
 
 
 /* ....................................................................... */
-/* category dist panel */
+/* Cluster dist panel */
 
-div#catInfo {
+div#clusterInfo {
     position: absolute;
-    top: 100px;
-    right: 10px;
+    top: 300px;
+    left: 10px;
     cursor: text;
     width: 300px;
     z-index: 1000;
@@ -332,54 +256,54 @@ div#catInfo {
     /*border: solid 1px #aaa;*/
     border-radius: 8px;    
     font-family: Verdana, Arial, Helvetica, sans-serif;
-    font-size: 10px;    
+    font-size: 12px;    
     padding: 4px;
-    text-align: right;
+    text-align: left;
 }
 
-div#catInfo div#cover {
+div#clusterInfo div#cover {
     text-align: left; 
     height: 30px;
 }
 
-div#catInfo div.t {
+div#clusterInfo div.t {
     font-size: 18px;
     font-weight: bold;
 }
 
-div#catInfo img.cover {
+div#clusterInfo img.cover {
     margin-bottom: 6px;
     position: absolute;
     right: 3px;
 }
 
-div#catnfo img.action {
+div#clusternfo img.action {
     cursor: pointer;
     position: absolute;
 }
 
-div#catInfo div.f {
+div#clusterInfo div.f {
     border-top: 1px dotted #8E5981;
     margin-bottom: 20px;
     margin-top: 3px;
 }
 
-div#catInfo span.e {
+div#clusterInfo span.e {
     font-size: 13px;
     padding: 2px;
 }
 
-div#catInfo span.d {
+div#clusterInfo span.d {
     font-size: 13px;
     font-weight: bold;
     padding: 2px;
 }
 
-div#catInfo span.c {
+div#clusterInfo span.c {
     font-style: italic;
 }
 
-div#catInfo span.l {
+div#clusterInfo span.l {
     font-size: 11px;
    
 }
@@ -400,7 +324,7 @@ line.link {
 circle {
     cursor: crosshair;
     fill: rgba(0, 0, 0, 1);
-    stroke-width: 3px;
+    stroke-width: 5px;
 }
 
 circle.level1 {
@@ -497,7 +421,7 @@ circle.main {
 /* Graph labels */
 
 g.gLabel {
-    font: 10px sans-serif;
+    font: 12px sans-serif;
     font-weight: normal;
     visibility: hidden;
 }
@@ -516,12 +440,6 @@ g.zoomed {
     z-index: 0;
 }
 
-text {
-    font: 10px sans-serif;
-    font-weight: normal;
-    stroke-opacity: 1.0;
-}
-
 text.nlabel {
     /*stroke: #000000;*/
 }
@@ -538,10 +456,11 @@ text.main {
     font-weight: bold;
 }
 
+
 /*.........................................................................*/
 
 .chartterms div {
-  font: 13px sans-serif;
+  font: 16px sans-serif;
   text-align: left;
   padding: 2px;
   margin: 1px;
@@ -554,6 +473,7 @@ text.main {
     font: 18px sans-serif;
     text-align: center;
     height: 18px;
+    background: transparent; 
 }
 
 div#movieInfo2 div.t {
