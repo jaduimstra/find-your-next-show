@@ -27,5 +27,4 @@ def output():
         return render_template("date_error.html")
     j_graph = ga.generate_json_graph(out_date, cities[city])
     return render_template("output.html", jsonfile = j_graph, 
-                           in_date=out_date, city=city)
-
+			   in_date=out_date, city=city)
