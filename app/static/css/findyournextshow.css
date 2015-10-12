@@ -187,7 +187,7 @@ div#movieInfo2 span.l {
 
 div#movieInfo {
     position: absolute;
-    top: 95px;
+    top: 100px;
     left: 10px;
     cursor: text;
     width: 200px;
@@ -197,7 +197,7 @@ div#movieInfo {
     border-radius: 8px;    
     font-family: Verdana, Arial, Helvetica, sans-serif;
     font-size: 12px;    
-    padding: 10px;
+    padding: 5px;
     text-align: left;
 }
 
@@ -247,10 +247,10 @@ div#movieInfo div#cover {
 
 div#clusterInfo {
     position: absolute;
-    top: 300px;
+    top: 330px;
     left: 10px;
     cursor: text;
-    width: 300px;
+    width: 200px;
     z-index: 1000;
     background: transparent; 
     /*border: solid 1px #aaa;*/
@@ -269,6 +269,7 @@ div#clusterInfo div#cover {
 div#clusterInfo div.t {
     font-size: 18px;
     font-weight: bold;
+    text-align: left;
 }
 
 div#clusterInfo img.cover {

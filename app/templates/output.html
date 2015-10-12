@@ -71,7 +71,7 @@
 function drawLegend() {
   //Width and height
   var w = 200;
-  var h = 300;
+  var h = 400;
 
   var svg = d3.select("#clusterInfo")
     .append("svg")
@@ -246,7 +246,9 @@ function D3ok() {
       //info += '<div class=t style="float: left"><a href="' + n.event_url + '">'+n.label+'</a></div>';
 
     //info += '<br/></div><div style="clear: both;">'
-    info += '<div ><span class=d>Top Descriptive Terms</span> <br>';
+    if( n.label )
+      info += '<div class=t>'+n.label+'</div><br>'
+    info += '<span class=d>Top Descriptive Terms</span> <br>';
     if(n.term_names) {
       for(i = 0, len = n.term_names.length; i<5 && i<len; i++){
         info += '<div class="chartterms">';
@@ -641,7 +643,9 @@ function D3ok() {
 
 <div id="sidepanelleft"> 
     <div id="movieInfo" class="panel_off"></div>
-    <div id="clusterInfo" class="svg"></div>
+    <div id="clusterInfo" class="svg">
+      <div class=t>LEGEND</div>
+    </div>
 </div>
 
 <div id="sidepanelright"> 
