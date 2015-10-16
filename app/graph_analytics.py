@@ -1,6 +1,3 @@
-# Here's the SQL query for this run:
-# 
-# SELECT artist_name, artist_mbid, event_datetime FROM Events WHERE event_datetime BETWEEN '2015-09-25 01:00:00' AND '2015-09-27 01:00:00' AND venue_city = 'San Francisco'
 import pickle
 import json
 import pandas as pd
@@ -11,7 +8,8 @@ import os
 import sqlalchemy as sa
 
 db_connect_string = os.environ.get('DB_CREDENTIALS')
-engine = sa.create_engine(db_connect_string)
+engine = sa.create_engine(db_connect_string,
+                          pool_size=100, pool_recycle=180)
 
 with open('all_terms.pik', 'r') as f:
     # BE CAREFUL WITH the pickle file, it's consecutive except for
