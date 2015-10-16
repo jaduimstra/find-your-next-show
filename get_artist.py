@@ -5,6 +5,7 @@ import pandas as pd
 import cPickle
 import json
 import re
+from sys import argv
 from sklearn.cluster import KMeans
 from pyechonest import artist as a
 from pyechonest import util
@@ -101,16 +102,17 @@ def calc_cluster(nparray, model):
         return cluster[0]
 
 
-def get_all_artist_en_info(all_terms, engine, en, k_model):
+def get_all_artist_en_info(all_terms, engine, en, k_model, a_id):
     """
     """
     sql = ("SELECT id, artist_bit_name, artist_bit_mbid FROM Artist "
-        "WHERE artist_en_id is NULL ") 
+        "WHERE artist_en_id is NULL "
+        "AND id > %s;")
         #2740, skip 5531,5532,5753, 7647, 7651 
         #7737, 9854, 10693, 12353 (genre), 6189 (% in artist name)
         #WHERE artist_en_id IS NULL")
     # pd sql query requires a sqlalchemy engine
-    df_artists = pd.read_sql_query(sql, engine)
+    df_artists = pd.read_sql_query(sql, engine, params=[a_id])
     for index, row in df_artists.iterrows():
         #if index < 6:    
         result, artist_info =get_artist_info_pyapi(en,
@@ -155,14 +157,13 @@ def get_all_artist_en_info(all_terms, engine, en, k_model):
                     con.execute(update_sql)
 
 
-def main():
+def main(a_id):
     db_connect_string = os.environ.get('DB_CREDENTIALS')
     engine = sa.create_engine(db_connect_string)
     en = pyapi.Pyapi('echonest')
     all_terms = get_all_terms(en)
     k_model = get_kmeans()
-    get_all_artist_en_info(all_terms, engine, en, k_model)
+    get_all_artist_en_info(all_terms, engine, en, k_model, a_id)
 
 if __name__ == '__main__':
-    #all_info, all_terms = 
-    main()
+    main(argv[1])
