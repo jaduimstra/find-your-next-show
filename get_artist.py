@@ -13,11 +13,11 @@ from numpy import asarray
 import pyapi
 from pyapi import PyapiException
 
-"""This script will pull the artists from the hearshowdb based on location and
+"""This code will pull the artists from the the db based on location and
 event.  Then, using either MusicBrainz id (artist_mbid) or name, it will query
-EchoNest to get a set of terms for the artists.  These terms will then be
-stored as a sparse vector for each artist and the artists will be compared
-against each other using cosine similarity
+EchoNest to get a set of terms for the artists.  These terms will be used to 
+calculate which 'genre' cluster the artist belongs to and then will be
+stored for later graph generation (using `graph_analytics.py`) in MySQL for each artist.
 """    
 
 def scrub(s):
