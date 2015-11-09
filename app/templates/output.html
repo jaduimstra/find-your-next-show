@@ -173,7 +173,8 @@ function D3ok() {
     .gravity(.05)
     .friction(.9)
     .size( [s.w, s.h] )
-    .linkStrength( function(d,idx) { return Math.pow(d.weight,1.); } );
+    .linkStrength( function(d,idx) { return Math.pow(d.weight,1.); } )
+    .linkDistance( function(d,idx) { return d.weight*10; } );
 
   // Add to the page the SVG element that will contain the movie network
   var svg = d3.select("#movieNetwork").append("svg:svg")
